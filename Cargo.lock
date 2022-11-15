@@ -256,9 +256,11 @@ dependencies = [
 name = "ml-project"
 version = "0.1.0"
 dependencies = [
+ "csv",
  "linfa",
  "linfa-datasets",
  "linfa-trees",
+ "ndarray",
 ]
 
 [[package]]
