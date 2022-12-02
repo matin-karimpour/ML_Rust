@@ -7,3 +7,5 @@ In this project, [Linfa](https://rust-ml.github.io/linfa/)'s support vector mach
 | Decision Tree       | *0.8202247*  |
 | Logistic Regression | *0.23033708* |
 | SVM                 | *0.8033708*  |
+
+The Persian description will be posted on [Virgool](https://virgool.io/@matin_karimpour).
