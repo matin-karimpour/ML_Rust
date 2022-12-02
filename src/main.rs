@@ -1,10 +1,14 @@
 use csv::Reader;
 use std::fs::File;
 use ndarray::{ Array, Array1, Array2 };
+
 use linfa::Dataset;
 use linfa_trees::DecisionTree;
 use linfa::prelude::*;
 use linfa_svm::Svm ;
+use linfa_logistic::LogisticRegression;
+
+
 fn main() {
     let train_data_path = "./titanic_dataset/trainClean.csv";
     let dataset = get_dataset(train_data_path);
@@ -14,13 +18,23 @@ fn main() {
 
     let model = DecisionTree::params()
         .fit(&train).unwrap();
-    
+        println!("Decision Tree");
     let accuracy = model.predict(&test).confusion_matrix(&test).unwrap().accuracy();
     println!("Decision Tree accuracy: {}",accuracy);
 
+    let logstic_model = LogisticRegression::default()
+        .max_iterations(150)
+        .fit(&train)
+        .unwrap();
+    println!("Logistic Regression");
+
+    let logstic_accuracy = logstic_model.predict(&test).confusion_matrix(&test).unwrap().accuracy();
+    println!("Logistic Regression accuracy: {}",logstic_accuracy);
+
     let svm_model = Svm::<_, bool>::params()
+        .linear_kernel()
         .fit(&train).unwrap();
-    
+    println!("SVM");
     let svm_accuracy = svm_model.predict(&test).confusion_matrix(&test).unwrap().accuracy();
     println!("SVM accuracy: {}",svm_accuracy);
 
