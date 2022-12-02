@@ -2,15 +2,32 @@ use csv::Reader;
 use std::fs::File;
 use ndarray::{ Array, Array1, Array2 };
 use linfa::Dataset;
-
+use linfa_trees::DecisionTree;
+use linfa::prelude::*;
+use linfa_svm::Svm ;
 fn main() {
-    let train_data_path = "./titanic_dataset/train_clean.csv";
-    let val_data_path = "./titanic_dataset/val_clean.csv";
-    get_dataset(train_data_path);
-    get_dataset(val_data_path);
+    let train_data_path = "./titanic_dataset/trainClean.csv";
+    let dataset = get_dataset(train_data_path);
+    
+    let (train, test) = dataset.split_with_ratio(0.8);
+    //println!("train: {:?} \n test: {:?} \n",train, test);
+
+    let model = DecisionTree::params()
+        .fit(&train).unwrap();
+    
+    let accuracy = model.predict(&test).confusion_matrix(&test).unwrap().accuracy();
+    println!("Decision Tree accuracy: {}",accuracy);
+
+    let svm_model = Svm::<_, bool>::params()
+        .fit(&train).unwrap();
+    
+    let svm_accuracy = svm_model.predict(&test).confusion_matrix(&test).unwrap().accuracy();
+    println!("SVM accuracy: {}",svm_accuracy);
+
+    
 }
 
-fn get_dataset(data_path: &str) -> Dataset<f32, i32, ndarray::Dim<[usize; 1]>> {
+fn get_dataset(data_path: &str) -> Dataset<f32, bool, ndarray::Dim<[usize; 1]>> {
     let mut reader = Reader::from_path(data_path).unwrap();
 
     let headers = get_header(&mut reader);
@@ -57,10 +74,16 @@ fn get_records(data: &Vec<Vec<f32>>, target_index: usize, data_shape:(usize,usiz
 
    }
    
-   fn get_targets(data: &Vec<Vec<f32>>, target_index: usize) -> Array1<i32> {
+   fn get_targets(data: &Vec<Vec<f32>>, target_index: usize) -> Array1<bool> {
     let targets = data
       .iter()
-      .map(|record| record[target_index] as i32)
-      .collect::<Vec<i32>>();
+      .map(|record| {
+        if record[target_index] == 0.0{
+            false
+        }else {
+            true
+        }
+    })
+      .collect::<Vec<bool>>();
      return Array::from( targets );
    }
